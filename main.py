@@ -1,13 +1,30 @@
-from flask import Flask, jsonify
-import os
+from flask import Flask, jsonify, request
+import youtube_dl
 
 app = Flask(__name__)
 
+def get_video_info(video_url):
+    options = {
+        'format': 'best',
+    }
 
-@app.route('/')
-def index():
-    return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
+    with youtube_dl.YoutubeDL(options) as ydl:
+        info_dict = ydl.extract_info(video_url, download=False)
+        return info_dict
 
+@app.route('/get_video_info', methods=['GET'])
+def api_get_video_info():
+    video_url = request.args.get('video_url')
 
-if __name__ == '__main__':
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+    if not video_url:
+        return jsonify({"error": "Missing 'video_url' parameter"}), 400
+
+    try:
+        video_info = get_video_info(video_url)
+        return jsonify(video_info)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
