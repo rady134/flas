@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-import youtube_dl
+import yt_dlp
 
 app = Flask(__name__)
 
@@ -8,7 +8,7 @@ def get_video_info(video_url):
         'format': 'best',
     }
 
-    with youtube_dl.YoutubeDL(options) as ydl:
+    with yt_dlp.YoutubeDL(options) as ydl:
         info_dict = ydl.extract_info(video_url, download=False)
         return info_dict
 
@@ -27,4 +27,3 @@ def api_get_video_info():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
